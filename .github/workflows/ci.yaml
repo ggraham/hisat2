@@ -18,7 +18,13 @@ jobs:
         submodules: recursive
 
     - name: Build
-      run:  make -j allall
+      run:  make -j$(nproc) all
+    - name: Install samtools & bcftools
+      run: |
+        sudo apt-get update -q -y
+        sudo apt-get install -y -q samtools bcftools
+    - name: run tests
+      run:  PATH=$PWD:$PATH sh .github/workflows/run-tests.sh
 
   build-aarch64:
     name: Linux aarch64
@@ -40,7 +46,8 @@ jobs:
           --volume "${PWD}:/hisat2"
         install: |
           apt-get update -q -y
-          apt-get install -q -y make g++
+          apt-get install -q -y make g++ samtools bcftools
         run: |
           cd /hisat2
-          make -j allall
+          make -j$(nproc) all
+          PATH=$PWD:PATH sh .github/workflows/run-tests.sh
